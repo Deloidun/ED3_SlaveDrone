@@ -6,10 +6,9 @@
 unsigned long lastRecvTime = 0;
 
 // // MAC address of the sender - Middle ESP32
-// uint8_t masterAddress[] = {0x48, 0xE7, 0x29, 0x9F, 0xDD, 0xD4};
+uint8_t masterAddress[] = {0x48, 0xE7, 0x29, 0x9E, 0x94, 0xF8};
 
-// // New Slave MAC
-// uint8_t New_MAC_Address[] = {0xB0, 0xA7, 0x32, 0x16, 0x1E, 0x24};
+// 48:E7:29:96:77:44
 
 // PMK and LMK keys
 static const char* PMK_KEY_STR = "_A_H_L_T_T_T_ED3";
@@ -19,8 +18,8 @@ static const char* LMK_KEY_STR = "_SON_DINH_VU_ED3";
 int ESC_PWM;
 byte X_joystick_value;
 byte Y_joystick_value;
-byte button1_value;
-byte button2_value;
+byte leftB_value;
+byte rightB_value;
 
 // Create a structure to store data sent from Master ESP
 typedef struct {
@@ -30,8 +29,8 @@ typedef struct {
   byte JSX;
   byte JSY;
  
-  byte button1;
-  byte button2;
+  byte leftButton;
+  byte rightButton;
 
 } ESPNOW_Data;
 
@@ -41,6 +40,7 @@ ESPNOW_Data receivedData;
 // Assign default input received values
 void setInputDefaultValues()
 {
+  receivedData.CtrlPWM = 0;
   receivedData.JSX = 127;
   receivedData.JSY = 127;
 }
@@ -58,15 +58,16 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
   ESC_PWM = receivedData.CtrlPWM;
   X_joystick_value = receivedData.JSX;
   Y_joystick_value = receivedData.JSY;
-  button1_value = receivedData.button1;
-  button2_value = receivedData.button2;
+  leftB_value = receivedData.leftButton;
+  rightB_value = receivedData.rightButton;
+  // Serial.printf("%3d, %3d, %3d, %3d, %3d\n", ESC_PWM, X_joystick_value, Y_joystick_value, button1_value, button2_value);
 }
 
 void init_ESPNOW_Slave() 
 {
   setInputDefaultValues();
  
-  Serial.begin(115200);
+  // Serial.begin(115200);
 	// Set Slave ESP32 as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -76,29 +77,31 @@ void init_ESPNOW_Slave()
     Serial.println("Error initializing ESP-NOW");
     return;
   }
-	// // Create a slave peer object
-  // esp_now_peer_info_t masterPeer;
 
-  // // Set the PMK key
-  // esp_now_set_pmk((uint8_t *)PMK_KEY_STR);
+	// Create a slave peer object
+  esp_now_peer_info_t masterPeer;
 
-  // // Register peer
-  // memcpy(masterPeer.peer_addr, masterAddress, 6);
-  // masterPeer.channel = 0;
+  // Set the PMK key
+  esp_now_set_pmk((uint8_t *)PMK_KEY_STR);
 
-	// 	///*** Set the middle device's LMK ***///
-	// 	for (uint8_t i = 0; i < 16; i++)
-  //   {
-  //     masterPeer.lmk[i] = LMK_KEY_STR[i];
-  //   }
+  // Register peer
+  memset(&masterPeer, 0, sizeof(masterPeer));
+  memcpy(masterPeer.peer_addr, masterAddress, 6);
+  masterPeer.channel = 0;
 
-  // masterPeer.encrypt = false;
+		///*** Set the middle device's LMK ***///
+		for (uint8_t i = 0; i < 16; i++)
+    {
+      masterPeer.lmk[i] = LMK_KEY_STR[i];
+    }
+
+  masterPeer.encrypt = true;
   
-	// // Add peer   
-  // if (esp_now_add_peer(&masterPeer) != ESP_OK){
-  //   Serial.println("Failed to add peer");
-  //   return;
-  // }
+	// Add peer   
+  if (esp_now_add_peer(&masterPeer) != ESP_OK){
+    Serial.println("Failed to add peer");
+    return;
+  }
 
 	// Register callback function for received data
   esp_now_register_recv_cb(OnDataRecv);
