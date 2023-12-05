@@ -1,10 +1,10 @@
 #pragma once
 
-extern int8_t LStickY_ReceivedValue;
-extern int8_t RStickY_ReceivedValue;
-extern int8_t RStickX_ReceivedValue;
-extern int8_t L1_ReceivedValue;
-extern int8_t R1_ReceivedValue;
+extern int8_t JS_X_Value;
+extern int8_t JS_Y_Value;
+extern int8_t leftButton;
+extern int8_t rightButton;
+extern int PWM_value;
 
-void Initialize_ESPNOW_Slave();
-void Print_PS4_Values();
+void Init_ESPNOW_Slave();
+void Print_PS5_Values();

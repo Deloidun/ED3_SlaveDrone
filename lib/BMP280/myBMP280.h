@@ -22,4 +22,3 @@ void BMP280_Check();
 void BMP280_Calibration();
 void Matrix_Manipulation();
 void BMP280_Update_Values();
-void BMP280_Temp();

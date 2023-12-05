@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////
 #define EscPin_RightFront 5 //ESC1
 #define EscPin_RightBack 23 //ESC2
-#define EscPin_LeftBack 18 //ESC3
+#define EscPin_LeftBack 18 //ESC34
 #define EscPin_LeftFront 19 //ESC4
 Servo ESC1, ESC2, ESC3, ESC4;
 
@@ -21,11 +21,8 @@ float MotorInput1, MotorInput2, MotorInput3, MotorInput4;
 //FUNCTION FOR CONVERTING INPUT DATA FROM PS4 TO THROTTLE
 ///////////////////////////////////////////////////////////
 float Convert_Received_PS4_To_Throttle(){
-    int RecevingThrottleInput = 0;
-    if (LStickY_ReceivedValue <= 10){
-        RecevingThrottleInput = 0;
-    }
-    else RecevingThrottleInput = map(LStickY_ReceivedValue, 0, 127, 0, 180);
+    float RecevingThrottleInput = 0;
+    RecevingThrottleInput = PWM_value;
     return RecevingThrottleInput;
 }
 
@@ -34,11 +31,8 @@ float Convert_Received_PS4_To_Throttle(){
 //FUNCTION FOR CONVERTING INPUT DATA FROM PS4 TO ROLL
 ///////////////////////////////////////////////////////////
 float Convert_Received_PS4_To_Roll(){
-    int ReceivingRollInput = 0;
-    if (RStickX_ReceivedValue <= 11 && RStickX_ReceivedValue >= -11){
-        ReceivingRollInput = 127;
-    } 
-    else ReceivingRollInput = 127 + RStickX_ReceivedValue;
+    float ReceivingRollInput = 0;
+    ReceivingRollInput = JS_X_Value;
     return ReceivingRollInput;
 }
 
@@ -47,11 +41,8 @@ float Convert_Received_PS4_To_Roll(){
 //FUNCTION FOR CONVERTING INPUT DATA FROM PS4 TO PITCH
 ///////////////////////////////////////////////////////////
 float Convert_Received_PS4_To_Pitch(){
-    int ReceivingPitchInput = 0;
-    if (RStickY_ReceivedValue <= 11 && RStickY_ReceivedValue >= -11){
-        ReceivingPitchInput = 127;
-    }
-    else ReceivingPitchInput = 127 + RStickY_ReceivedValue;
+    float ReceivingPitchInput = 0;
+    ReceivingPitchInput = JS_Y_Value;
     return ReceivingPitchInput;
 }
 
@@ -60,13 +51,12 @@ float Convert_Received_PS4_To_Pitch(){
 //FUNCTION FOR CONVERTING INPUT DATA FROM PS4 TO YAW
 ///////////////////////////////////////////////////////////
 float Convert_Received_PS4_To_Yaw(){
-    int ReceivingYawInput = 0;
-    ReceivingYawInput = 127;
-    if (L1_ReceivedValue == 3){
-        ReceivingYawInput = 100;
+    float ReceivingYawInput = 0;
+    if (leftButton){
+        ReceivingYawInput = -30;
     }
-    if (R1_ReceivedValue == 2){
-        ReceivingYawInput = 154;
+    if (rightButton){
+        ReceivingYawInput = 30;
     }
     return ReceivingYawInput;
 }
@@ -160,7 +150,7 @@ void Control_Throttle_To_Balance_Drone(){
     if (MotorInput3 > InputThrottleConstant) MotorInput3 = InputThrottleConstant - 1;
     if (MotorInput4 > InputThrottleConstant) MotorInput4 = InputThrottleConstant - 1;
 
-    int Throttle_Idle = 30;
+    int Throttle_Idle = 20;
     if (MotorInput1 < Throttle_Idle) MotorInput1 = Throttle_Idle;
     if (MotorInput2 < Throttle_Idle) MotorInput2 = Throttle_Idle;
     if (MotorInput3 < Throttle_Idle) MotorInput3 = Throttle_Idle;

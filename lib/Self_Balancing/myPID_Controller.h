@@ -1,10 +1,10 @@
 #pragma once
 
-extern float InputThrottle;
-extern float InputRoll, InputPitch, InputYaw;
+extern float InputThrottle, InputRoll, InputPitch, InputYaw;
 extern float KalmanAnglePitch, KalmanAngleRoll;
 extern float AltitudeKalman;
 extern float AccZ_Inertial;
+extern float DesiredAngleRoll, DesiredAnglePitch;
 
 void Reset_PID(void);
 void Kalman_1D_Roll();

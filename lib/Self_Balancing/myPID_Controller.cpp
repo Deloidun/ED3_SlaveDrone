@@ -137,10 +137,11 @@ void Kalman_1D_Pitch(){
 //FUNCTION UPDATES IMPORTANT VALUES
 //////////////////////////////////////////////////////////
 void Values_Update(){
-    DesiredAngleRoll = 0.10 * (Convert_Received_PS4_To_Roll() - 127);
-    DesiredAnglePitch = 0.10 * (Convert_Received_PS4_To_Pitch() - 127);
-    DesiredRateYaw = 0.15 * (Convert_Received_PS4_To_Yaw() - 127);
-    InputThrottle = Convert_Received_PS4_To_Throttle();
+    DesiredAngleRoll = 0.10 * (RecevingRollInput - 127);
+    DesiredAnglePitch = 0.10 * (RecevingPitchInput - 127);
+    DesiredRateYaw = 0.15 * (RecevingYawInput);
+    InputThrottle = RecevingThrottleInput;
+    
     ErrorAngleRoll = DesiredAngleRoll - KalmanAngleRoll;
     ErrorAnglePitch = DesiredAnglePitch - KalmanAnglePitch;
 }
