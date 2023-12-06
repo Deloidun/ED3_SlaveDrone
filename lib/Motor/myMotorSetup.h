@@ -2,12 +2,10 @@
 
 extern float MotorInput1, MotorInput2, MotorInput3, MotorInput4;
 
-// extern float Convert_Received_PS4_To_Throttle();
-// extern float Convert_Received_PS4_To_Roll();
-// extern float Convert_Received_PS4_To_Pitch();
-// extern float Convert_Received_PS4_To_Yaw();
-
-extern float RecevingThrottleInput, RecevingPitchInput, RecevingYawInput, RecevingRollInput;
+float Convert_Received_PS4_To_Throttle();
+float Convert_Received_PS4_To_Roll();
+float Convert_Received_PS4_To_Pitch();
+float Convert_Received_PS4_To_Yaw();
 
 
 void Send_Input_Throttle_2_ESC();

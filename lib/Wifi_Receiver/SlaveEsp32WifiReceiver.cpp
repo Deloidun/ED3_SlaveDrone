@@ -2,6 +2,11 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <Wifi.h>
+#include <BasicLinearAlgebra.h>
+#include <Adafruit_BMP280.h>
+
+#include <myBMP280.h>
+#include <myPID_Controller.h>
 
 
 //MAC address of the Sender - Middle ESP32
@@ -20,6 +25,7 @@ int PWM_value; // Value of potentiometer
 
 //Define a Wifi Joystick message structure
 typedef struct {
+
     int P;
 
     byte XJS; 
@@ -33,8 +39,27 @@ typedef struct {
 //Create a structured object for joystick incoming data
 wifiMess controller;
 
+//////////////////////////////////////////////////////////////
+typedef struct {
+
+    float time;
+
+    float k_angle_roll;
+    float k_angle_pitch;
+    float k_altitude;
+
+    float temp;
+    float press;
+    
+} wifiMSG;
+
+//Create a structured object for joystick incoming data
+wifiMSG sensor;
+//////////////////////////////////////////////////////////////
+
 //Callback function executed when data is received
-void On_Data_Recv(const uint8_t * mac, const uint8_t * incomingData, int len){
+void OnDataRecv(const uint8_t * mac, const uint8_t * incomingData, int len)
+{
     memcpy(&controller, incomingData, sizeof(controller));
     PWM_value = controller.P;
     JS_X_Value = controller.XJS;
@@ -42,6 +67,11 @@ void On_Data_Recv(const uint8_t * mac, const uint8_t * incomingData, int len){
     leftButton = controller.LB;
     rightButton = controller.RB;
     // Serial.printf("[ PWM: %3d, X: %3d, Y: %3d, LB: %d, RB: %d \n]", PWM_value, JS_X_Value, JS_Y_Value, leftButton, rightButton);
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
+{
+
 }
 
 //Create a function to initialize the ESP-NOW for Slave
@@ -77,7 +107,29 @@ void Init_ESPNOW_Slave(){
         Serial.println ("Failed to add peer");
         return;
     }
-    esp_now_register_recv_cb(On_Data_Recv);
+
+    esp_now_register_recv_cb(OnDataRecv);
+    esp_now_register_send_cb(OnDataSent);
+}
+
+void sendingData_throughESPNOW()
+{
+    sensor.time = LoopTimer;
+    sensor.k_angle_roll = KalmanAngleRoll;
+    sensor.k_angle_pitch = KalmanAnglePitch;
+    // sensor.k_altitude = Altitude;
+    // sensor.temp = Temperature;
+    // sensor.press = Pressure;
+
+
+    esp_err_t result = esp_now_send(masterAddress, (uint8_t *) &sensor, sizeof(sensor));
+
+    // Serial.printf("%f   ", sensor.time);
+    // Serial.printf("%.3f   ", sensor.k_angle_roll);
+    // Serial.printf("%.3f   ", sensor.k_angle_pitch);
+    // Serial.printf("%.3f   ", sensor.k_altitude);
+    // Serial.printf("%.3f   ", sensor.temp);
+    // Serial.printf("%f   \n", sensor.press);
 }
 
 // Debug

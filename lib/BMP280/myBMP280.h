@@ -14,8 +14,9 @@ extern BLA :: Matrix <1,1> R;
 extern BLA :: Matrix <1,1> L;
 extern BLA :: Matrix <1,1> M;
 
-extern float AccZ_Inertial;
 extern float Altitude, AltitudeBarometer, AltitudeBarometerStartUp;
+extern float LoopTimer;
+extern float Temperature, Pressure;
 
 void BMP280_Setup();
 void BMP280_Check();

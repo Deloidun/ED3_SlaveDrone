@@ -21,7 +21,7 @@ float PIDReturn[] = {0, 0, 0};
 float KalmanAngleRoll = 0, KalmanUncertaintyAngleRoll = 2 * 2;
 float KalmanAnglePitch = 0, KalmanUncertaintyAnglePitch = 2 * 2;
 float Kalman1DOutput [] = {0, 0};
-float AltitudeKalman;
+float AltitudeKalman = 0;
 float VelocityVerticalKalman;
 float AccZ_Inertial;
 
@@ -31,14 +31,24 @@ float PrevErrorAngleRoll, PrevErrorAnglePitch;
 float PrevItermAngleRoll, PrevItermAnglePitch;
 
 
-float PRateRoll = 0.4285; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
-float IRateRoll = 0.065; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-float DRateRoll = 0.0375; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+// float PRateRoll = 0.4285; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
+// float IRateRoll = 0.065; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+// float DRateRoll = 0.0375; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+
+
+// //PID gains for position (angle)
+// float PAngleRoll = 0.325; float PAnglePitch = PAngleRoll;
+// float IAngleRoll = 0.01; float IAnglePitch = IAngleRoll;
+// float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll; 
+
+float PRateRoll = 0.0; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
+float IRateRoll = 0.0; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
+float DRateRoll = 0.0; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
 
 //PID gains for position (angle)
-float PAngleRoll = 0.325; float PAnglePitch = PAngleRoll;
-float IAngleRoll = 0.01; float IAnglePitch = IAngleRoll;
+float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
+float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
 float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll; 
 
 
@@ -137,10 +147,10 @@ void Kalman_1D_Pitch(){
 //FUNCTION UPDATES IMPORTANT VALUES
 //////////////////////////////////////////////////////////
 void Values_Update(){
-    DesiredAngleRoll = 0.10 * (RecevingRollInput - 127);
-    DesiredAnglePitch = 0.10 * (RecevingPitchInput - 127);
-    DesiredRateYaw = 0.15 * (RecevingYawInput);
-    InputThrottle = RecevingThrottleInput;
+    DesiredAngleRoll =  0.1*(Convert_Received_PS4_To_Roll() - 127);
+    DesiredAnglePitch = 0.1*(Convert_Received_PS4_To_Pitch()- 127);
+    DesiredRateYaw = 0.15 * (Convert_Received_PS4_To_Yaw());
+    InputThrottle = Convert_Received_PS4_To_Throttle();
     
     ErrorAngleRoll = DesiredAngleRoll - KalmanAngleRoll;
     ErrorAnglePitch = DesiredAnglePitch - KalmanAnglePitch;
@@ -152,9 +162,10 @@ void Values_Update(){
 //////////////////////////////////////////////////////////
 void PID_Equation_AngleRoll(){
     General_PID_Equation (ErrorAngleRoll, PAngleRoll, IAngleRoll, DAngleRoll, PrevErrorAngleRoll,PrevItermAngleRoll);     
-    DesiredRateRoll = PIDReturn[0]; 
+    DesiredRateRoll = PIDReturn[0]; // not avaliable
     PrevErrorAngleRoll = PIDReturn[1];
     PrevItermAngleRoll = PIDReturn[2];
+    
 }
 
 
@@ -206,5 +217,3 @@ void PID_Equation_RateYaw(){
     PrevErrorRateYaw = PIDReturn[0];
     PrevItermRateYaw = PIDReturn[1];
 }
-
-

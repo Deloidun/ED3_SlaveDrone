@@ -1,10 +1,11 @@
 #pragma once
 
-extern int8_t JS_X_Value;
-extern int8_t JS_Y_Value;
-extern int8_t leftButton;
-extern int8_t rightButton;
+extern byte JS_X_Value;
+extern byte JS_Y_Value;
+extern byte leftButton;
+extern byte rightButton;
 extern int PWM_value;
 
 void Init_ESPNOW_Slave();
 void Print_PS5_Values();
+void sendingData_throughESPNOW();
