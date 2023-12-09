@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <PID_controller.h>
 #include <Slave_esp_wifi.h>
+#include <Voltage.h>
 
 Adafruit_MPU6050 mpu;
   
@@ -24,6 +25,8 @@ void setup()
 
 void loop()
 {
+TimeCount();
+voltage_sensor();
 corrected_values();
 kalman_1d_roll();
 kalman_1d_pitch();
@@ -36,9 +39,7 @@ pid_equation_anglepitch();
 pid_equation_rateyaw();
 control_throttle();
 // checkInputController();//Turn this on when calibrate
-
+sendingData();
 // Print_PS4_Value ();
-SerialDataWrite();
-
-
+// SerialDataWrite();
 }

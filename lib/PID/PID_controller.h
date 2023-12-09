@@ -10,9 +10,11 @@ extern float DesiredRateRoll, DesiredRateYaw;
 extern float RateRoll, RatePitch;
 extern float RateCalibrationRoll, RateCalibrationPitch;
 
+float KalmanAngleRoll, KalmanAnglePitch;
+
 extern float AngleRoll;
 extern float AnglePitch;
-extern uint32_t LoopTimer;
+// extern uint32_t LoopTimer;
 // setup functions//
 
 void calibration_measurement();

@@ -10,7 +10,7 @@
     float RateCalibrationRoll, RateCalibrationPitch, RateCalibrationYaw;
     int RateCalibrationNumber;
 
-    uint32_t LoopTimer;
+    // uint32_t LoopTimer;
 
     float DesiredRateRoll, DesiredRatePitch,DesiredRateYaw;
     float ErrorRateRoll, ErrorRatePitch, ErrorRateYaw;

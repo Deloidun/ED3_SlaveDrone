@@ -1,9 +1,18 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
+#include <Voltage.h>
+#include <PID_controller.h>
+
+float LoopTimer = 0;
+
+void TimeCount()
+{
+  LoopTimer = micros();
+}
 
 // MAC address of the sender - Middle ESP32
-uint8_t middleAddress[] = {0x48, 0xE7, 0x29, 0x9E, 0x94, 0xF8};
+uint8_t masterAddress[] = {0x48, 0xE7, 0x29, 0x9E, 0x94, 0xF8};
 
 // New Slave MAC
 uint8_t New_MAC_Address[] = {0x48, 0xE7, 0x29, 0x96, 0x77, 0x44};
@@ -29,7 +38,18 @@ typedef struct {
 } Wifi_receivedMessage;
  
 // Create a structured object for joystick incoming data
-Wifi_receivedMessage wifiData;
+Wifi_receivedMessage controllerData;
+
+// Define a wifi joystick message structure
+typedef struct {
+  float time;
+  float voltage;
+  float k_picth;
+  float k_roll;
+} Wifi_sentMessage;
+ 
+// Create a structured object for joystick incoming data
+Wifi_sentMessage sensorData;
 
 // Create a middle peer object
 esp_now_peer_info_t masterPeer;
@@ -37,13 +57,13 @@ esp_now_peer_info_t masterPeer;
 // Callback function executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
 {
-  memcpy(&wifiData, incomingData, sizeof(wifiData));
+  memcpy(&controllerData, incomingData, sizeof(controllerData));
 
-  PWM = wifiData.P;
-  X_value = wifiData.XJS;
-  Y_value = wifiData.YJS;
-  leftB = wifiData.LB;
-  rightB = wifiData.RB;
+  PWM = controllerData.P;
+  X_value = controllerData.XJS;
+  Y_value = controllerData.YJS;
+  leftB = controllerData.LB;
+  rightB = controllerData.RB;
 }
 
 void init_ESPNOW_Slave()
@@ -67,7 +87,7 @@ void init_ESPNOW_Slave()
   esp_now_set_pmk((uint8_t *)PMK_KEY_STR);
 
   // Register Middle ESP32 peer
-  memcpy(masterPeer.peer_addr, middleAddress, 6);
+  memcpy(masterPeer.peer_addr, masterAddress, 6);
   masterPeer.channel = 0;
 
     ///*** Set the Middle ESP32's LMK ***///
@@ -91,6 +111,17 @@ void init_ESPNOW_Slave()
   // esp_now_register_send_cb(OnDataSent);
 }
 
+void sendingData()
+{
+  sensorData.time = LoopTimer;
+  sensorData.voltage = in_voltage;
+  sensorData.k_picth = KalmanAngleRoll;
+  sensorData.k_roll = KalmanAnglePitch;
+
+  esp_err_t result = esp_now_send(masterAddress, (uint8_t *) &sensorData, sizeof(sensorData));
+
+}
+
 void Print_PS4_Value (){
   Serial.print(" [");
   Serial.printf("%4d", PWM);
@@ -107,3 +138,4 @@ void Print_PS4_Value (){
   Serial.print(rightB);
   Serial.print ("]\n");
 }
+
