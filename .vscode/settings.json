@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "*.tcc": "cpp"
+    },
+    "C_Cpp.default.compilerPath": "d:\\Work\\ED3 DRone\\drone_slave-ed3_replacement\\lib\\PID\\PID_controller.cpp"
+}
