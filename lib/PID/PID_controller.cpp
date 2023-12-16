@@ -10,8 +10,7 @@
     float RateCalibrationRoll, RateCalibrationPitch, RateCalibrationYaw;
     int RateCalibrationNumber;
 
-    // uint32_t LoopTimer;
-
+    
     float DesiredRateRoll, DesiredRatePitch,DesiredRateYaw;
     float ErrorRateRoll, ErrorRatePitch, ErrorRateYaw;
     float InputRoll, InputThrottle, InputPitch, InputYaw;
@@ -33,22 +32,27 @@
     float PrevItermAngleRoll, PrevItermAnglePitch;
 
 
-    float PRateRoll = 4.0; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
-    float IRateRoll = 0.0; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
-    float DRateRoll = 0.0; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+    // float PRateRoll = 0.425; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
+    // float IRateRoll = 0.055; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
+    // float DRateRoll = 0.0225; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
+    float PRateRoll = 0.42525; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
+    float IRateRoll = 0.055; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
+    float DRateRoll = 0.0225; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
     //PID gains for position (angle)
-    float PAngleRoll = 4.0; float PAnglePitch = PAngleRoll;
+    float PAngleRoll = 0.5; float PAnglePitch = PAngleRoll;
     float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
     float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll; 
 
 
-//Motor setup
+// //Motor setup
     #define EscPin_RightFront 5
     #define EscPin_RightBack 23
     #define EscPin_LeftBack 18
     #define EscPin_LeftFront 19
+
+    
     Servo ESC1, ESC2, ESC3, ESC4;
 
 void system_setup(){
@@ -113,8 +117,10 @@ void gyro_signals(void) //angular speed, rad/s or degree/s
     AccY=(float)AccYLSB/4096;
     AccZ=(float)AccZLSB/4096;
 
-    AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
-    AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
+    // AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
+    // AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
+    AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
+    AngleRoll =-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
 }
 void calibration_measurement()
 {
@@ -222,12 +228,12 @@ float ReceiveYawInput(){
     int MatchingYawInput = 0;
     
     if (leftB) {
-        MatchingYawInput = -30;
+        MatchingYawInput = 0;//MatchingYawInput = -30;
     }
     
     if (rightB) {
-        MatchingYawInput = 30;
-    }
+        MatchingYawInput = 0;//MatchingYawInput = 30;
+    } 
     
     return MatchingYawInput;
 }
@@ -290,9 +296,9 @@ void kalman_1d_pitch(){
 
 void value_update(){ 
     
-    DesiredAngleRoll=0.10*(ReceiveRollInput()-127);
-    DesiredAnglePitch=0.10*(ReceivePitchInput()-127);
-    DesiredRateYaw=0.15*(ReceiveYawInput()-127);
+    DesiredAngleRoll= 0.10*(ReceiveRollInput() - 127);
+    DesiredAnglePitch= 0.10*(ReceivePitchInput() - 127);
+    DesiredRateYaw=0.15*(ReceiveYawInput());
     InputThrottle=ReceiveThrottleInput();
     ErrorAngleRoll=DesiredAngleRoll-KalmanAngleRoll; // co gia tri
     ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
@@ -337,30 +343,33 @@ void pid_equation_rateyaw(){
     InputYaw=PIDReturn[0]; 
     PrevErrorRateYaw=PIDReturn[1]; 
     PrevItermRateYaw=PIDReturn[2];
-
 }
 
 void control_throttle(){
    
-   int InputPower = 120; //80% of total power
-    if (InputThrottle > InputPower) InputThrottle = InputPower;
+//    int InputPower = 120; //80% of total power
+//     if (InputThrottle > InputPower) InputThrottle = InputPower;
 
     MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
     MotorInput2 = (InputThrottle + InputPitch - InputRoll + InputYaw);
     MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
     MotorInput4 = (InputThrottle - InputPitch + InputRoll + InputYaw);
 
-    int InputThrottleConstant = 180;
-    if (MotorInput1 > InputThrottleConstant) MotorInput1 = InputThrottleConstant - 1;
-    if (MotorInput2 > InputThrottleConstant) MotorInput2 = InputThrottleConstant - 1;
-    if (MotorInput3 > InputThrottleConstant) MotorInput3 = InputThrottleConstant - 1;
-    if (MotorInput4 > InputThrottleConstant) MotorInput4 = InputThrottleConstant - 1;
+    // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
+    // MotorInput2 = (InputThrottle - InputPitch + InputRoll + InputYaw);
+    // MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
+    // MotorInput4 = (InputThrottle + InputPitch - InputRoll + InputYaw);
+    // int InputThrottleConstant = 180;
+    // if (MotorInput1 > InputThrottleConstant) MotorInput1 = InputThrottleConstant - 1;
+    // if (MotorInput2 > InputThrottleConstant) MotorInput2 = InputThrottleConstant - 1;
+    // if (MotorInput3 > InputThrottleConstant) MotorInput3 = InputThrottleConstant - 1;
+    // if (MotorInput4 > InputThrottleConstant) MotorInput4 = InputThrottleConstant - 1;
 
-    int Throttle_Idle = 20;
-    if (MotorInput1 < Throttle_Idle) MotorInput1 = Throttle_Idle;
-    if (MotorInput2 < Throttle_Idle) MotorInput2 = Throttle_Idle;
-    if (MotorInput3 < Throttle_Idle) MotorInput3 = Throttle_Idle;
-    if (MotorInput4 < Throttle_Idle) MotorInput4 = Throttle_Idle;
+    // int Throttle_Idle = 20;
+    // if (MotorInput1 < Throttle_Idle) MotorInput1 = Throttle_Idle;
+    // if (MotorInput2 < Throttle_Idle) MotorInput2 = Throttle_Idle;
+    // if (MotorInput3 < Throttle_Idle) MotorInput3 = Throttle_Idle;
+    // if (MotorInput4 < Throttle_Idle) MotorInput4 = Throttle_Idle;
 
     int ThrottleCutOff = 0;
     if (InputThrottle < 20){
@@ -377,6 +386,6 @@ void control_throttle(){
 }
 
 void SerialDataWrite() {
-    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4);
-
+    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredAnglePitch,DesiredAngleRoll);
+    
     }

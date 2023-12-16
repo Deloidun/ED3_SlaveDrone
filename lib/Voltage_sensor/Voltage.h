@@ -1,5 +1,5 @@
 #pragma once
 
-int in_voltage;
+extern float in_voltage;
 
 void voltage_sensor();

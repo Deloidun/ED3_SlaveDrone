@@ -10,7 +10,7 @@ extern float DesiredRateRoll, DesiredRateYaw;
 extern float RateRoll, RatePitch;
 extern float RateCalibrationRoll, RateCalibrationPitch;
 
-float KalmanAngleRoll, KalmanAnglePitch;
+extern float KalmanAngleRoll, KalmanAnglePitch;
 
 extern float AngleRoll;
 extern float AnglePitch;
