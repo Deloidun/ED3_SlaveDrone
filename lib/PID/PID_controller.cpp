@@ -36,14 +36,14 @@
     // float IRateRoll = 0.055; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
     // float DRateRoll = 0.0225; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
-    float PRateRoll = 0.42525; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
-    float IRateRoll = 0.055; float IRatePitch=IRateRoll; float IRateYaw = 0.0;
-    float DRateRoll = 0.0225; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+    float PRateRoll = 0.625; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
+    float IRateRoll = 1.0; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+    float DRateRoll = 0.028125; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
-    //PID gains for position (angle)
-    float PAngleRoll = 0.5; float PAnglePitch = PAngleRoll;
-    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
-    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll; 
+    //PID gains for displacement (angle)
+    float PAngleRoll = 0.4; float PAnglePitch = PAngleRoll;
+    float IAngleRoll = 0.02; float IAnglePitch = IAngleRoll; //0.02
+    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
 
 // //Motor setup
@@ -110,8 +110,10 @@ void gyro_signals(void) //angular speed, rad/s or degree/s
     int16_t GyroY=Wire.read()<<8 | Wire.read();
     int16_t GyroZ=Wire.read()<<8 | Wire.read();
 
-    RateRoll=(float)GyroX/65.5;
-    RatePitch=(float)GyroY/65.5;
+    // RateRoll=(float)GyroX/65.5;
+    // RatePitch=(float)GyroY/65.5;
+    RateRoll=(float)-GyroY/65.5;
+    RatePitch=(float)-GyroX/65.5;
     RateYaw=(float)GyroZ/65.5;
     AccX=(float)AccXLSB/4096;
     AccY=(float)AccYLSB/4096;
@@ -120,7 +122,7 @@ void gyro_signals(void) //angular speed, rad/s or degree/s
     // AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
     // AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
     AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
-    AngleRoll =-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
+    AngleRoll = atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
 }
 void calibration_measurement()
 {
@@ -228,12 +230,17 @@ float ReceiveYawInput(){
     int MatchingYawInput = 0;
     
     if (leftB) {
-        MatchingYawInput = 0;//MatchingYawInput = -30;
+        MatchingYawInput = 0;
+        //MatchingYawInput = -30;
+    }else {
+        MatchingYawInput = 0;
     }
     
     if (rightB) {
         MatchingYawInput = 0;//MatchingYawInput = 30;
-    } 
+    }else {
+        MatchingYawInput = 0;
+    }
     
     return MatchingYawInput;
 }
@@ -347,29 +354,26 @@ void pid_equation_rateyaw(){
 
 void control_throttle(){
    
-//    int InputPower = 120; //80% of total power
-//     if (InputThrottle > InputPower) InputThrottle = InputPower;
+   int InputPower = 120; //80% of total power
+    if (InputThrottle > InputPower) InputThrottle = InputPower;
 
-    MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
-    MotorInput2 = (InputThrottle + InputPitch - InputRoll + InputYaw);
-    MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
-    MotorInput4 = (InputThrottle - InputPitch + InputRoll + InputYaw);
 
-    // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
-    // MotorInput2 = (InputThrottle - InputPitch + InputRoll + InputYaw);
-    // MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
-    // MotorInput4 = (InputThrottle + InputPitch - InputRoll + InputYaw);
-    // int InputThrottleConstant = 180;
-    // if (MotorInput1 > InputThrottleConstant) MotorInput1 = InputThrottleConstant - 1;
-    // if (MotorInput2 > InputThrottleConstant) MotorInput2 = InputThrottleConstant - 1;
-    // if (MotorInput3 > InputThrottleConstant) MotorInput3 = InputThrottleConstant - 1;
-    // if (MotorInput4 > InputThrottleConstant) MotorInput4 = InputThrottleConstant - 1;
+    MotorInput1 = (InputThrottle - InputPitch + InputRoll - InputYaw); //
+    MotorInput2 = (InputThrottle + InputPitch + InputRoll + InputYaw);
+    MotorInput3 = (InputThrottle + InputPitch - InputRoll - InputYaw);
+    MotorInput4 = (InputThrottle - InputPitch - InputRoll + InputYaw);
 
-    // int Throttle_Idle = 20;
-    // if (MotorInput1 < Throttle_Idle) MotorInput1 = Throttle_Idle;
-    // if (MotorInput2 < Throttle_Idle) MotorInput2 = Throttle_Idle;
-    // if (MotorInput3 < Throttle_Idle) MotorInput3 = Throttle_Idle;
-    // if (MotorInput4 < Throttle_Idle) MotorInput4 = Throttle_Idle;
+    int InputThrottleConstant = 180;
+    if (MotorInput1 > InputThrottleConstant) MotorInput1 = InputThrottleConstant - 1;
+    if (MotorInput2 > InputThrottleConstant) MotorInput2 = InputThrottleConstant - 1;
+    if (MotorInput3 > InputThrottleConstant) MotorInput3 = InputThrottleConstant - 1;
+    if (MotorInput4 > InputThrottleConstant) MotorInput4 = InputThrottleConstant - 1;
+
+    int Throttle_Idle = 20;
+    if (MotorInput1 < Throttle_Idle) MotorInput1 = Throttle_Idle;
+    if (MotorInput2 < Throttle_Idle) MotorInput2 = Throttle_Idle;
+    if (MotorInput3 < Throttle_Idle) MotorInput3 = Throttle_Idle;
+    if (MotorInput4 < Throttle_Idle) MotorInput4 = Throttle_Idle;
 
     int ThrottleCutOff = 0;
     if (InputThrottle < 20){
@@ -388,4 +392,14 @@ void control_throttle(){
 void SerialDataWrite() {
     Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredAnglePitch,DesiredAngleRoll);
     
-    }
+}
+
+    // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
+    // MotorInput2 = (InputThrottle + InputPitch - InputRoll + InputYaw);
+    // MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
+    // MotorInput4 = (InputThrottle - InputPitch + InputRoll + InputYaw);
+
+    // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
+    // MotorInput2 = (InputThrottle - InputPitch + InputRoll + InputYaw);
+    // MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
+    // MotorInput4 = (InputThrottle + InputPitch - InputRoll + InputYaw);

@@ -39,10 +39,9 @@ pid_equation_ratepitch();
 
 
 pid_equation_rateyaw();
-control_throttle();
-// checkInputController();//Turn this on when calibrate
+control_throttle(); //Turn this on when calibrate
 sendingData();
 // Print_PS4_Value ();
-SerialDataWrite();
+// SerialDataWrite();
 
 }
