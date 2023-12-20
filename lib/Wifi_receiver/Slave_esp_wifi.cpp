@@ -4,11 +4,11 @@
 #include <Voltage.h>
 #include <PID_controller.h>
 
-float LoopTimer = 0;
+float Timer = 0;
 
 void TimeCount()
 {
-  LoopTimer = micros();
+  Timer = micros();
 }
 
 // MAC address of the sender - Middle ESP32
@@ -113,7 +113,7 @@ void init_ESPNOW_Slave()
 
 void sendingData()
 {
-  sensorData.time = LoopTimer;
+  sensorData.time = Timer;
   sensorData.voltage = in_voltage;
   sensorData.k_picth = KalmanAngleRoll;
   sensorData.k_roll = KalmanAnglePitch;

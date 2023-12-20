@@ -10,7 +10,7 @@
 
 
 Adafruit_MPU6050 mpu;
-uint32_t PIDtime;
+uint32_t LoopTimer;
 void setup()
 {
   Serial.begin(115200);
@@ -21,6 +21,7 @@ void setup()
   system_setup();
   calibration_measurement(); //mpu
   // calibrate(); //Turn this on when calibrate
+  LoopTimer = micros();
 }
 
 
@@ -32,16 +33,20 @@ corrected_values();
 kalman_1d_roll();
 kalman_1d_pitch();
 value_update();
+
 pid_equation_angleroll();
 pid_equation_anglepitch();
 pid_equation_rateroll();
 pid_equation_ratepitch();
 
 
+
+
 pid_equation_rateyaw();
 control_throttle(); //Turn this on when calibrate
 sendingData();
 // Print_PS4_Value ();
-// SerialDataWrite();
-
+SerialDataWrite();
+while(micros() - LoopTimer < 4000);
+LoopTimer = micros();
 }
