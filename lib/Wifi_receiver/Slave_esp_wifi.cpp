@@ -21,23 +21,43 @@ uint8_t New_MAC_Address[] = {0x48, 0xE7, 0x29, 0x96, 0x77, 0x44};
 static const char* PMK_KEY_STR = "_A_H_L_T_T_T_ED3";
 static const char* LMK_KEY_STR = "_SON_DINH_VU_ED3";
 
-// UART Data received from middle ESP32 through ESP_NOW
+// Define variables to store data received from ESPNOW
 int PWM;
+
 byte X_value;
 byte Y_value;
+
 byte leftB;
 byte rightB;
 
-// Define a wifi joystick message structure
+float PRate;
+float IRate;
+float DRate;
+
+float PAngle;
+float IAngle;
+float DAngle;
+
+// Define a ESPNOW received message structure
 typedef struct {
   int P;
+
   byte XJS;
   byte YJS;
+
   byte LB;
   byte RB;
+
+  float PR;
+  float IR;
+  float DR;
+
+  float PA;
+  float IA;
+  float DA;
 } Wifi_receivedMessage;
  
-// Create a structured object for joystick incoming data
+// Create a structured object for monitor incoming data
 Wifi_receivedMessage controllerData;
 
 // Define a wifi joystick message structure
@@ -60,10 +80,20 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
   memcpy(&controllerData, incomingData, sizeof(controllerData));
 
   PWM = controllerData.P;
+
   X_value = controllerData.XJS;
   Y_value = controllerData.YJS;
+
   leftB = controllerData.LB;
   rightB = controllerData.RB;
+
+  PRate = controllerData.PR;
+  IRate = controllerData.IR;
+  DRate = controllerData.DR;
+
+  PAngle = controllerData.PA;
+  IAngle = controllerData.IA;
+  DAngle = controllerData.DA;
 }
 
 void init_ESPNOW_Slave()

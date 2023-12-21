@@ -38,11 +38,8 @@ pid_equation_angleroll();
 pid_equation_anglepitch();
 pid_equation_rateroll();
 pid_equation_ratepitch();
-
-
-
-
 pid_equation_rateyaw();
+
 control_throttle(); //Turn this on when calibrate
 sendingData();
 // Print_PS4_Value ();

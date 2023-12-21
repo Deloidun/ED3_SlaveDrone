@@ -47,12 +47,21 @@
     // float DRateRoll = 0.028525; float DRatePitch=DRateRoll; float DRateYaw = 0.0;//0.04125
 
     float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
-    float IRateRoll = 1.46; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+    float IRateRoll = 1.4; float IRatePitch=IRateRoll; float IRateYaw = 2.0; //I rate too high
     float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 
-    float PAngleRoll = 0.003; float PAnglePitch = PAngleRoll;
+    float PAngleRoll = 1.5; float PAnglePitch = PAngleRoll;
     float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
     float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
+
+
+    // float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
+    // float IRateRoll = 0.15; float IRatePitch=IRateRoll; float IRateYaw = 2.0; //I rate too high
+    // float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+
+    // float PAngleRoll = 2.0; float PAnglePitch = PAngleRoll;
+    // float IAngleRoll = 1.0; float IAnglePitch = IAngleRoll;
+    // float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
 //Luc chua boi tron
     // float PRateRoll = 0.625; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
