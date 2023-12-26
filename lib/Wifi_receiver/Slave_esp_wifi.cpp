@@ -30,13 +30,13 @@ byte Y_value;
 byte leftB;
 byte rightB;
 
-float PRate;
-float IRate;
-float DRate;
+// float PRate;
+// float IRate;
+// float DRate;
 
-float PAngle;
-float IAngle;
-float DAngle;
+// float PAngle;
+// float IAngle;
+// float DAngle;
 
 // Define a ESPNOW received message structure
 typedef struct {
@@ -48,13 +48,13 @@ typedef struct {
   byte LB;
   byte RB;
 
-  float PR;
-  float IR;
-  float DR;
+  // float PR;
+  // float IR;
+  // float DR;
 
-  float PA;
-  float IA;
-  float DA;
+  // float PA;
+  // float IA;
+  // float DA;
 } Wifi_receivedMessage;
  
 // Create a structured object for monitor incoming data
@@ -87,13 +87,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
   leftB = controllerData.LB;
   rightB = controllerData.RB;
 
-  PRate = controllerData.PR;
-  IRate = controllerData.IR;
-  DRate = controllerData.DR;
+  // PRate = controllerData.PR;
+  // IRate = controllerData.IR;
+  // DRate = controllerData.DR;
 
-  PAngle = controllerData.PA;
-  IAngle = controllerData.IA;
-  DAngle = controllerData.DA;
+  // PAngle = controllerData.PA;
+  // IAngle = controllerData.IA;
+  // DAngle = controllerData.DA;
 }
 
 void init_ESPNOW_Slave()

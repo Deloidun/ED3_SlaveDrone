@@ -42,8 +42,10 @@ pid_equation_rateyaw();
 
 control_throttle(); //Turn this on when calibrate
 sendingData();
+SerialDataPrint();
+
 // Print_PS4_Value ();
-SerialDataWrite();
-while(micros() - LoopTimer < 4000);
-LoopTimer = micros();
+
+// while(micros() - LoopTimer < 4000); //4mili second
+// LoopTimer = micros();
 }

@@ -37,7 +37,9 @@ void pid_equation_rateroll();
 void pid_equation_ratepitch();
 void pid_equation_rateyaw();
 void control_throttle();
-void reset_timer();
-void SerialDataWrite();
+void SerialDataPrint();
 void calibrate();
 void checkInputController();
+
+
+void reset_timer();
