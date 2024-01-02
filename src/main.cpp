@@ -20,6 +20,7 @@ void setup()
   init_ESC();
   system_setup();
   calibration_measurement(); //mpu
+  gyro_compensate();
   // calibrate(); //Turn this on when calibrate
   LoopTimer = micros();
 }

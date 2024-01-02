@@ -41,3 +41,4 @@ void reset_timer();
 void SerialDataWrite();
 void calibrate();
 void checkInputController();
+void gyro_compensate();
