@@ -52,16 +52,13 @@
     // float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
     // float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
-    float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
-    float IRateRoll = 1.4; float IRatePitch=IRateRoll; float IRateYaw = 2.0; //I rate too high
-    float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+    float PRateRoll = 0.425; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
+    float IRateRoll = 0.7; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+    float DRateRoll = 0.0485375; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //D = 0.065, 0.0489375
 
-    float PAngleRoll = 0.05; float PAnglePitch = PAngleRoll;
-    // float IAngleRoll = 1.5; float IAnglePitch = IAngleRoll;
-    float DAngleRoll = 0.025; float DAnglePitch = DAngleRoll; //0.025
-
-
-
+    float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
+    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
+    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
 
 // //Motor setup
@@ -139,8 +136,8 @@ void gyro_signals(void) //angular speed, rad/s or degree/s
 
     // AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
     // AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
-    AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
-    AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
+    AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 2.6;
+    AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 0.8;
 }
 void calibration_measurement()
 {
@@ -161,6 +158,7 @@ void gyro_compensate(){
     gyro_signals();
     CompeRoll = AngleRoll;
     CompePitch = AnglePitch;
+    // CompeYaw = AngleYaw;
 }
 
 
@@ -278,9 +276,9 @@ void pid_equationR(float Error, float Rate, float P , float I, float D, float Pr
     PIDReturn[2]=Iterm;
 
     if (PIDmode == 'P') {           // PID limit mode for Pitch
-        Iterm = Iterm - I*(CompePitch + DesiredAnglePitch);
+        Iterm = Iterm - I*(CompePitch - DesiredAnglePitch);
     } else if (PIDmode == 'R') {    // PID limit mode for Roll
-        Iterm = Iterm - I*(CompeRoll + DesiredAngleRoll);
+        Iterm = Iterm - I*(CompeRoll - DesiredAngleRoll);
     }
     PIDlimit = 400;
 
@@ -304,7 +302,7 @@ void pid_equationR(float Error, float Rate, float P , float I, float D, float Pr
 void pid_equationA(float Error, float P, float D, float PrevError)
 {
     float Pterm=P*Error; //P controller
-    PIDlimit = 20;
+    PIDlimit = 7;
 
     float Dterm=D*(Error-PrevError)/0.004; //D controller
     float PIDOutput= Pterm+Dterm; //PID output is the sum of controllers
@@ -457,7 +455,7 @@ void control_throttle(){
 }
 
 void SerialDataWrite() {
-    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredAnglePitch,DesiredAngleRoll);
+    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4, DesiredAnglePitch, DesiredAngleRoll);
     
 }
 
