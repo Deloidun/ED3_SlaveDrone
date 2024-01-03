@@ -52,13 +52,13 @@
     // float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
     // float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
-    float PRateRoll = 0.425; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
-    float IRateRoll = 0.7; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-    float DRateRoll = 0.0485375; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //D = 0.065, 0.0489375
+    float PRateRoll = 0.2875; float PRatePitch=PRateRoll; float PRateYaw = 1.0; 
+    float IRateRoll = 0.5; float IRatePitch=IRateRoll; float IRateYaw = 0.008;
+    float DRateRoll = 0.03975; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //0.1575
 
     float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
     float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
-    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
+    float DAngleRoll = 0.; float DAnglePitch = DAngleRoll;
 
 
 // //Motor setup
@@ -276,11 +276,11 @@ void pid_equationR(float Error, float Rate, float P , float I, float D, float Pr
     PIDReturn[2]=Iterm;
 
     if (PIDmode == 'P') {           // PID limit mode for Pitch
-        Iterm = Iterm - I*(CompePitch - DesiredAnglePitch);
+        Iterm = Iterm + I*(CompePitch + DesiredAnglePitch);
     } else if (PIDmode == 'R') {    // PID limit mode for Roll
-        Iterm = Iterm - I*(CompeRoll - DesiredAngleRoll);
+        Iterm = Iterm + I*(CompeRoll + DesiredAngleRoll);
     }
-    PIDlimit = 400;
+    PIDlimit = 180;
 
     //Set the limit for I integral controller
     if (Iterm > PIDlimit) Iterm = PIDlimit;
@@ -302,7 +302,7 @@ void pid_equationR(float Error, float Rate, float P , float I, float D, float Pr
 void pid_equationA(float Error, float P, float D, float PrevError)
 {
     float Pterm=P*Error; //P controller
-    PIDlimit = 7;
+    PIDlimit = 180;
 
     float Dterm=D*(Error-PrevError)/0.004; //D controller
     float PIDOutput= Pterm+Dterm; //PID output is the sum of controllers
@@ -455,7 +455,7 @@ void control_throttle(){
 }
 
 void SerialDataWrite() {
-    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4, DesiredAnglePitch, DesiredAngleRoll);
+    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4, PrevItermRateRoll, PrevItermRatePitch);
     
 }
 
