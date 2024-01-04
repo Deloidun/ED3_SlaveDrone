@@ -36,13 +36,13 @@
     float PrevDesiredAngleRoll = 0, PrevDesiredAnglePitch = 0;
 
 //Lubrication
-    // float PRateRoll = 0.52; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
-    // float IRateRoll = 1.4525; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-    // float DRateRoll = 0.02855; float DRatePitch=DRateRoll; float DRateYaw = 0.0;//0.04125
-
-    // float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.0; 
-    // float IRateRoll = 1.46; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-    // float DRateRoll = 0.028525; float DRatePitch=DRateRoll; float DRateYaw = 0.0;//0.04125
+    float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.0;
+    float IRateRoll = 1.38; float IRatePitch=IRateRoll; float IRateYaw = 1.0;
+    float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+   
+    float PAngleRoll = 0.00025; float PAnglePitch = PAngleRoll;
+    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
+    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
     // float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
     // float IRateRoll = 1.4; float IRatePitch=IRateRoll; float IRateYaw = 2.0; //I rate too high
@@ -52,13 +52,13 @@
     // float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
     // float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
-    float PRateRoll = 0.2875; float PRatePitch=PRateRoll; float PRateYaw = 1.0; 
-    float IRateRoll = 0.5; float IRatePitch=IRateRoll; float IRateYaw = 0.008;
-    float DRateRoll = 0.03975; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //0.1575
+    // float PRateRoll = 0.2875; float PRatePitch=PRateRoll; float PRateYaw = 1.0; 
+    // float IRateRoll = 0.5; float IRatePitch=IRateRoll; float IRateYaw = 0.008;
+    // float DRateRoll = 0.03975; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //0.1575
 
-    float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
-    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
-    float DAngleRoll = 0.; float DAnglePitch = DAngleRoll;
+    // float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
+    // float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
+    // float DAngleRoll = 0.; float DAnglePitch = DAngleRoll;
 
 
 // //Motor setup
@@ -275,13 +275,16 @@ void pid_equationR(float Error, float Rate, float P , float I, float D, float Pr
     float Iterm=PrevIterm-I*(Rate+PrevRate)*0.004/2; //I controller
     PIDReturn[2]=Iterm;
 
-    if (PIDmode == 'P') {           // PID limit mode for Pitch
-        Iterm = Iterm + I*(CompePitch + DesiredAnglePitch);
-    } else if (PIDmode == 'R') {    // PID limit mode for Roll
-        Iterm = Iterm + I*(CompeRoll + DesiredAngleRoll);
-    }
-    PIDlimit = 180;
+     PIDlimit = 180;
 
+    if (PIDmode == 'P') {           // PID limit mode for Pitch
+        Iterm = Iterm + I*(-CompePitch + DesiredAnglePitch);
+    } else if (PIDmode == 'R') {    // PID limit mode for Roll
+        Iterm = Iterm + I*(-CompeRoll + DesiredAngleRoll);
+    } else if (PIDmode == 'Y') {    // PID limit mode for Roll
+        PIDlimit = 36;
+    }
+ 
     //Set the limit for I integral controller
     if (Iterm > PIDlimit) Iterm = PIDlimit;
     else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
