@@ -34,22 +34,13 @@
     float PrevDesiredAngleRoll = 0, PrevDesiredAnglePitch = 0;
     
 
-    float PRateRoll = 0.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
-    float IRateRoll = 1.4; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-    float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+    float PRateRoll = 0.2875; float PRatePitch=PRateRoll; float PRateYaw = 1.0; 
+    float IRateRoll = 0.5; float IRatePitch=IRateRoll; float IRateYaw = 0.008;
+    float DRateRoll = 0.03975; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //0.1575
 
-    float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll; //1.5
-    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll; //0.005
-    float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
-
-
-    // float PRateRoll = 3.5; float PRatePitch=PRateRoll; float PRateYaw = 0.006; 
-    // float IRateRoll = 0.75; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-    // float DRateRoll = 0.05; float DRatePitch=DRateRoll; float DRateYaw = 0.0; //0.1575
-
-    // float PAngleRoll = 1.5; float PAnglePitch = PAngleRoll;
-    // float IAngleRoll = 0.005; float IAnglePitch = IAngleRoll;
-    // float DAngleRoll = 0.; float DAnglePitch = DAngleRoll;
+    float PAngleRoll = 0.0; float PAnglePitch = PAngleRoll;
+    float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
+    float DAngleRoll = 0.; float DAnglePitch = DAngleRoll;
 
 
 // //Motor setup
@@ -249,7 +240,7 @@ float ReceiveYawInput(){
     return MatchingYawInput;
 }
 
-
+float PIDLimit = 180;
 
 //PID equation for position (angle) and velocity (rate)
 void pid_equation(float Error, float P , float I, float D, float PrevError, float PrevIterm)
@@ -258,15 +249,15 @@ void pid_equation(float Error, float P , float I, float D, float PrevError, floa
     float Iterm = PrevIterm + I * (Error + PrevError) * 0.004/2; //I controller
 
     //Set the limit for I integral controller
-    if (Iterm > 7) Iterm = 7;
-    else if (Iterm <- 7) Iterm =- 7;
+    if (Iterm > PIDLimit) Iterm = PIDLimit;
+    else if (Iterm < -PIDLimit) Iterm = -PIDLimit;
 
     float Dterm = D * (Error - PrevError)/0.004; //D controller
     float PIDOutput = Pterm + Iterm + Dterm; //PID output is the sum of controllers
 
     //Set the limit for the PID output
-    if (PIDOutput > 20) PIDOutput = 20; //accumulate errors
-    else if (PIDOutput <- 20) PIDOutput =- 20;
+    if (PIDOutput > PIDLimit) PIDOutput = PIDLimit; //accumulate errors
+    else if (PIDOutput < -PIDLimit) PIDOutput = -PIDLimit;
 
     PIDReturn[0] = PIDOutput;
     PIDReturn[1] = Error;
@@ -398,9 +389,8 @@ void control_throttle(){
 }
 
 void SerialDataPrint() {
-    //Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredAnglePitch,DesiredAngleRoll, KalmanAngleRoll, KalmanAnglePitch);
-    Serial.printf("\n%3.0f, %3.0f", KalmanAngleRoll, KalmanAnglePitch);
-    
+    Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,PrevItermRateRoll, PrevItermRatePitch);
+ 
 }
 
     // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
