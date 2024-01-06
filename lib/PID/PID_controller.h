@@ -17,10 +17,10 @@ extern float AnglePitch;
 // extern uint32_t LoopTimer;
 // setup functions//
 
+void trans();
 void calibration_measurement();
 void init_ESC();
-void pid_equation(float Error, float P , float I, float D, float PrevError, float PrevIterm);
-
+void pid_equation(float Error, float Rate, float Angle, float P , float I, float D, float PrevError, float PrevIterm, float PrevRate, float PrevPterm, char PIDmode, char PIDdir);
 
 void system_setup();
 
@@ -37,7 +37,7 @@ void pid_equation_rateroll();
 void pid_equation_ratepitch();
 void pid_equation_rateyaw();
 void control_throttle();
-void SerialDataWrite();
+void SerialDataPrint();
 void calibrate();
 void checkInputController();
 void gyro_compensate();

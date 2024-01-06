@@ -28,6 +28,7 @@ void setup()
 
 void loop()
 {
+// trans();
 TimeCount();
 voltage_sensor();
 corrected_values();
@@ -44,7 +45,7 @@ pid_equation_rateyaw();
 control_throttle(); //Turn this on when calibrate
 sendingData();
 // Print_PS4_Value ();
-SerialDataWrite();
+SerialDataPrint();
 while(micros() - LoopTimer < 4000);
 LoopTimer = micros();
 }

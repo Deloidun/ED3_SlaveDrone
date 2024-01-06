@@ -23,21 +23,34 @@ static const char* LMK_KEY_STR = "_SON_DINH_VU_ED3";
 
 // Define variables to store data received from ESPNOW
 int PWM;
-
 byte X_value;
 byte Y_value;
-
 byte leftB;
 byte rightB;
+
+float PRate;
+float IRate;
+float DRate;
+
+float PAngle;
+float IAngle;
+float DAngle;
+
 // Define a ESPNOW received message structure
 typedef struct {
   int P;
-
   byte XJS;
   byte YJS;
-
   byte LB;
   byte RB;
+
+  float PR;
+  float IR;
+  float DR;
+
+  float PA;
+  float IA;
+  float DA;
 } Wifi_receivedMessage;
  
 // Create a structured object for monitor incoming data
@@ -63,12 +76,18 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
   memcpy(&controllerData, incomingData, sizeof(controllerData));
 
   PWM = controllerData.P;
-
   X_value = controllerData.XJS;
   Y_value = controllerData.YJS;
-
   leftB = controllerData.LB;
   rightB = controllerData.RB;
+
+  PRate = controllerData.PR;
+  IRate = controllerData.IR;
+  DRate = controllerData.DR;
+
+  PAngle = controllerData.PA;
+  IAngle = controllerData.IA;
+  DAngle = controllerData.DA;
 }
 
 void init_ESPNOW_Slave()
@@ -128,18 +147,18 @@ void sendingData()
 
 void Print_PS4_Value (){
   Serial.print(" [");
-  Serial.printf("%4d", PWM);
+  Serial.printf("%.4f", PRate);
   Serial.print ("] ");
   Serial.print("[");
-  Serial.printf("%4d", X_value);
+  Serial.printf("%.4f", IRate);
   Serial.print ("  ");
-  Serial.printf("%4d", Y_value);
-  Serial.print("] ");
+  Serial.printf("%.4f", DRate);
+  Serial.print("] \n");
 
-  Serial.print("[");
-  Serial.print(leftB);
-  Serial.print ("  ");
-  Serial.print(rightB);
-  Serial.print ("]\n");
+  // Serial.print("[");
+  // Serial.print(leftB);
+  // Serial.print ("  ");
+  // Serial.print(rightB);
+  // Serial.print ("]\n");
 }
 

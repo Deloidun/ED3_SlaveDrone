@@ -32,6 +32,7 @@ float DesiredAngleRoll, DesiredAnglePitch;
 float ErrorAngleRoll, ErrorAnglePitch;
 float PrevErrorAngleRoll, PrevErrorAnglePitch;
 float PrevItermAngleRoll, PrevItermAnglePitch;
+float PrevPtermPitch, PrevPtermRoll;
 
 float PrevDesiredAngleRoll = 0, PrevDesiredAnglePitch = 0;
 
@@ -52,15 +53,43 @@ float PrevDesiredAngleRoll = 0, PrevDesiredAnglePitch = 0;
 // float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
 // float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
-float PRateRoll = 0.35625; float PRatePitch=PRateRoll; float PRateYaw = 0.5;
-float IRateRoll = 0.88; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
-float DRateRoll = 0.0285; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+float PRateRoll = 0.18; float PRatePitch=PRateRoll; float PRateYaw = 0.5;
+float IRateRoll = 0.0; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+float DRateRoll = 0.0; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 //0.044625
-float PAngleRoll = 0.00025; float PAnglePitch = PAngleRoll;
+float PAngleRoll = 6.4; float PAnglePitch = PAngleRoll;
 float IAngleRoll = 0.0; float IAnglePitch = IAngleRoll;
-float DAngleRoll = 0.07; float DAnglePitch = DAngleRoll;
+float DAngleRoll = 0.0; float DAnglePitch = DAngleRoll;
 
+// float PRateRoll; float PRatePitch=PRateRoll; float PRateYaw = 0.5;
+// float IRateRoll; float IRatePitch=IRateRoll; float IRateYaw = 2.0;
+// float DRateRoll; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
+// //0.044625
+// float PAngleRoll; float PAnglePitch = PAngleRoll;
+// float IAngleRoll; float IAnglePitch = IAngleRoll;
+// float DAngleRoll; float DAnglePitch = DAngleRoll;
 
+void trans()
+{
+    PRateRoll = PRate;
+    // PRateRoll = 0.18;
+    IRateRoll = IRate;
+    DRateRoll = DRate;
+    PRatePitch = PRate;
+    // PRatePitch = 0.18;
+    IRatePitch = IRate;
+    DRatePitch = DRate;
+
+    IAngleRoll = IAngle;
+    PAngleRoll = PAngle;
+    // PAngleRoll = 5.7;
+    DAngleRoll = DAngle;
+
+    IAnglePitch = IAngle;
+    PAnglePitch = PAngle;
+    // PAnglePitch = 1.0;
+    DAnglePitch = DAngle;
+}
 
 
 
@@ -139,7 +168,7 @@ AccZ=(float)AccZLSB/4096;
 
 // AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
 // AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
-AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 0.4 + 0.95 -0.46; // -2.6
+AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 0.4 + 0.95 -0.46 -1.5; // -2.6
 AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 1.8 - 0.45 + 0.255; // +0.9
 }
 void calibration_measurement()
@@ -267,34 +296,49 @@ return MatchingYawInput;
 
 //PID equation for position (angle) and velocity (rate)
 // void pid_equationR(float Error, float P , float I, float D, float PrevError, float PrevIterm, char PIDmode)
-void pid_equationR(float Error, float Rate, float Angle, float P , float I, float D, float PrevError, float PrevIterm, float PrevRate, char PIDmode)
+void pid_equation(float Error, float Rate, float Angle, float P , float I, float D, float PrevError, float PrevIterm, float PrevRate, float PrevPterm, char PIDmode, char PIDdir)
 {
-float Pterm=P*Error; //P controller
+float Pterm; //P controller
+Pterm = P*Error;
 float Iterm; //I controller
+// float Disp;     // Total gyro displacement
 
-
-PIDlimit = 180;
-if (PIDmode == 'P') {           // PID limit mode for Pitch
-    Iterm = 0.98*(-I*CompeCountPitch*CompePitch + PrevIterm - I*(Rate+PrevRate)*0.004/2) - 0.02*I*Angle; //I controller
-    CompeCountPitch = 0;
-    PIDReturn[2]=Iterm;
-    Iterm = Iterm + I*DesiredAnglePitch;
-} else if (PIDmode == 'R') {    // PID limit mode for Roll
-    Iterm = 0.98*(-I*CompeCountRoll*CompeRoll + PrevIterm - I*(Rate+PrevRate)*0.004/2) - 0.02*I*Angle; //I controller
-    CompeCountRoll = 0;
-    PIDReturn[2]=Iterm;
-    Iterm = Iterm + I*DesiredAngleRoll;
-} else if (PIDmode == 'Y') {    // PID limit mode for Roll
-    Iterm = PrevIterm - I*(Rate+PrevRate)*0.004/2; //I controller
-    PIDlimit = 36;
-    PIDReturn[2]=Iterm;
+if (PIDmode == 'R'){               // PID mode for Rate
+    PIDlimit = 180;
+    // Pterm = P*Error;
+    if (PIDdir == 'Y') {    // PID limit for Yaw direction
+        Iterm = PrevIterm - I*(Rate+PrevRate)*0.004/2; //I controller
+        PIDlimit = 36;
+        PIDReturn[2]=Iterm;
+    }
+    //Set the limit for I integral controller
+    if (Iterm > PIDlimit) Iterm = PIDlimit;
+    else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
+} else if (PIDmode == 'A'){        // PID mode for Angle
+    PIDlimit = 180;
+    // if (PIDdir == 'P') {           // PID limit for Pitch direction
+    //     Pterm = 0.98*(-P*CompeCountPitch*CompePitch + PrevPterm - P*(Rate+PrevRate)*0.004/2) - 0.02*P*Angle; //I controller
+    //     CompeCountPitch = 0;
+    //     PIDReturn[4]=Pterm;
+    //     // Serial.printf("%6.3f  ",Pterm);
+    //     Pterm = Pterm + P*DesiredAnglePitch;
+    //     // Serial.printf("%6.3f  ",Pterm);
+    // } else if (PIDdir == 'R') {    // PID limit for Roll direction
+    //     Pterm = 0.98*(-P*CompeCountRoll*CompeRoll + PrevPterm - P*(Rate+PrevRate)*0.004/2) - 0.02*P*Angle; //I controller
+    //     CompeCountRoll = 0;
+    //     PIDReturn[4]=Pterm;
+    //     // Serial.printf("%6.3f  ",Pterm);
+    //     Pterm = Pterm + P*DesiredAngleRoll;
+    // }
+    Iterm = Iterm + I*Error;
+    // Iterm = Iterm + I*(Error+PrevError)*0.004/2;
+    //Set the limit for I integral controller
+    if (Iterm > PIDlimit) Iterm = PIDlimit;
+    else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
+    // if (Pterm > PIDlimit) Pterm = PIDlimit;
+    // else if (Pterm < -PIDlimit) Pterm = -PIDlimit;
+    // PIDReturn[2]=Iterm;
 }
-
-//Set the limit for I integral controller
-if (Iterm > PIDlimit) Iterm = PIDlimit;
-else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
-
-
 
 float Dterm=D*(Error-PrevError)/0.004; //D controller
 float PIDOutput= Pterm+Iterm+Dterm; //PID output is the sum of controllers
@@ -309,25 +353,7 @@ PIDReturn[1]=Error;
 PIDReturn[3]=Rate;
 }
 
-void pid_equationA(float Error, float P, float D, float PrevError)
-{
-float Pterm=P*Error; //P controller
-PIDlimit = 20;
-
-float Dterm=D*(Error-PrevError)/0.004; //D controller
-float PIDOutput= Pterm+Dterm; //PID output is the sum of controllers
-
-
-//Set the limit for the PID output
-if (PIDOutput > PIDlimit) PIDOutput = PIDlimit; // in deg/s
-else if (PIDOutput < -PIDlimit) PIDOutput = -PIDlimit;
-
-PIDReturn[0]=PIDOutput;
-PIDReturn[1]=Error;
-// PIDReturn[2]=Iterm;
-}
-
-void reset_pid(void) {
+void reset_pid(void){
 //Setpoints for velocity
 PrevErrorRateRoll=0; PrevErrorRatePitch=0; PrevErrorRateYaw=0;
 PrevItermRateRoll=0; PrevItermRatePitch=0; PrevItermRateYaw=0;
@@ -335,14 +361,13 @@ PrevItermRateRoll=0; PrevItermRatePitch=0; PrevItermRateYaw=0;
 //Setpoints for position (angle)
 PrevErrorAngleRoll=0; PrevErrorAnglePitch=0;    
 PrevItermAngleRoll=0; PrevItermAnglePitch=0;
-
+PrevPtermPitch = 0; PrevPtermRoll = 0;
 }
 
 //////////////////////////////////Setup/////////////////////////////////////
 
 
-void corrected_values()
-{
+void corrected_values(){
 gyro_signals();
 RateRoll -= RateCalibrationRoll ;
 RatePitch -= RateCalibrationPitch ;
@@ -365,71 +390,60 @@ KalmanAngleRoll=Kalman1DOutput[0]; KalmanUncertaintyAngleRoll=Kalman1DOutput[1];
 void kalman_1d_pitch(){
 kalman_1d(KalmanAnglePitch, KalmanUncertaintyAnglePitch, RatePitch, AnglePitch);
 KalmanAnglePitch=Kalman1DOutput[0]; KalmanUncertaintyAnglePitch=Kalman1DOutput[1];
-
 }
 
 void value_update(){ 
 DesiredAngleRoll= 0.04*(ReceiveRollInput() - 127);
-// if (DesiredAngleRoll != PrevDesiredAngleRoll){
-//     reset_pid();
-// }
-    // PrevDesiredAngleRoll = DesiredAngleRoll;
-
 DesiredAnglePitch= 0.04*(ReceivePitchInput() - 127);
-// if (DesiredAnglePitch != PrevDesiredAnglePitch){
-//     reset_pid();
-// }
-    // PrevErrorAnglePitch = DesiredAnglePitch;
-
+// DesiredAnglePitch = 0;
 DesiredRateYaw=0.15*(ReceiveYawInput());
 InputThrottle=ReceiveThrottleInput();
 ErrorAngleRoll=DesiredAngleRoll-KalmanAngleRoll; // co gia tri
 ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
-
 }
 
-
-
 void pid_equation_angleroll(){
-pid_equationA(ErrorAngleRoll, PAngleRoll, DAngleRoll, PrevErrorAngleRoll);     
+pid_equation(ErrorAngleRoll,RateRoll,KalmanAngleRoll, PAngleRoll, IAngleRoll, DAngleRoll, PrevErrorAngleRoll,PrevItermAngleRoll,PrevRateRoll,PrevPtermRoll,'A','R');     
 DesiredRateRoll=PIDReturn[0]; 
 PrevErrorAngleRoll=PIDReturn[1];
-// PrevItermAngleRoll=PIDReturn[2];
-// Serial.printf("\n%6.4f",DesiredRateRoll);
+PrevItermAngleRoll=PIDReturn[2];
+PrevRateRoll = PIDReturn[3];
+PrevPtermRoll = PIDReturn[4];
 }
 
 void pid_equation_anglepitch(){
-pid_equationA(ErrorAnglePitch, PAnglePitch, DAnglePitch, PrevErrorAnglePitch);
+pid_equation(ErrorAnglePitch,RatePitch,KalmanAnglePitch, PAnglePitch, IAnglePitch, DAnglePitch, PrevErrorAnglePitch,PrevItermAnglePitch,PrevRatePitch,PrevPtermPitch,'A','P');
 DesiredRatePitch=PIDReturn[0]; 
 PrevErrorAnglePitch=PIDReturn[1];
-// PrevItermAnglePitch=PIDReturn[2];
-
+PrevItermAnglePitch=PIDReturn[2];
+PrevRatePitch = PIDReturn[3];
+PrevPtermPitch = PIDReturn[4];
 
 ErrorRateRoll=DesiredRateRoll-RateRoll;
 ErrorRatePitch=DesiredRatePitch-RatePitch;
 ErrorRateYaw=DesiredRateYaw-RateYaw; 
-
 }
 
 void pid_equation_rateroll(){
-pid_equationR(ErrorRateRoll, RateRoll, KalmanAngleRoll, PRateRoll, IRateRoll, DRateRoll, PrevErrorRateRoll, PrevItermRateRoll, PrevRateRoll,'R');
+pid_equation(ErrorRateRoll, RateRoll, KalmanAngleRoll, PRateRoll, IRateRoll, DRateRoll, PrevErrorRateRoll, PrevItermRateRoll, PrevRateRoll,0,'R','R');
 InputRoll=PIDReturn[0];
 PrevErrorRateRoll=PIDReturn[1]; 
-PrevItermRateRoll=PIDReturn[2];
-PrevRateRoll = PIDReturn[3];
+// PrevItermRateRoll=PIDReturn[2];
+// PrevRateRoll = PIDReturn[3];
+// Serial.printf("\n%6.4f",InputRoll);
 
 }
 
 void pid_equation_ratepitch(){
-pid_equationR(ErrorRatePitch, RatePitch, KalmanAnglePitch, PRatePitch, IRatePitch, DRatePitch, PrevErrorRatePitch, PrevItermRatePitch, PrevRatePitch,'P');
+pid_equation(ErrorRatePitch, RatePitch, KalmanAnglePitch, PRatePitch, IRatePitch, DRatePitch, PrevErrorRatePitch, PrevItermRatePitch, PrevRatePitch,0,'R','P');
 InputPitch=PIDReturn[0]; 
 PrevErrorRatePitch=PIDReturn[1]; 
-PrevItermRatePitch=PIDReturn[2];
-PrevRatePitch = PIDReturn[3];
+// PrevItermRatePitch=PIDReturn[2];
+// PrevRatePitch = PIDReturn[3];
 }
 
 void pid_equation_rateyaw(){
-pid_equationR(ErrorRateYaw, RateYaw, 0, PRateYaw,IRateYaw, DRateYaw, PrevErrorRateYaw,PrevItermRateYaw, PrevRateYaw,'Y');
+pid_equation(ErrorRateYaw, RateYaw, 0, PRateYaw,IRateYaw, DRateYaw, PrevErrorRateYaw,PrevItermRateYaw, PrevRateYaw,0,'R','Y');
 InputYaw=PIDReturn[0]; 
 PrevErrorRateYaw=PIDReturn[1]; 
 PrevItermRateYaw=PIDReturn[2];
@@ -480,9 +494,12 @@ ESC4.write(MotorInput4);
 
 }
 
-void SerialDataWrite() {
-// Serial.printf("\n%3.0f, %3.0f, %3.0f, %3.0f, %6.3f, %6.3f", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredRatePitch,DesiredRateRoll);
+void SerialDataPrint() {
+// Serial.printf("%3.0f, %3.0f, %3.0f, %3.0f, %6.3f, %6.3f\n", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredRatePitch,DesiredRateRoll);
+// Serial.printf("%8.5f, %8.5f, %8.5f\n", InputPitch, CompePitch,KalmanAnglePitch);
+Serial.println(String(KalmanAnglePitch) + " " + String(KalmanAngleRoll) + " " + String(InputPitch));
 }
+
 
 // MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw);
 // MotorInput2 = (InputThrottle + InputPitch - InputRoll + InputYaw);
