@@ -28,7 +28,7 @@ void setup()
 
 void loop()
 {
-// trans();
+trans();
 TimeCount();
 voltage_sensor();
 corrected_values();
