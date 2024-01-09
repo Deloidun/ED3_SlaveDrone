@@ -347,10 +347,10 @@ KalmanAnglePitch=Kalman1DOutput[0]; KalmanUncertaintyAnglePitch=Kalman1DOutput[1
 }
 
 void value_update(){ 
-DesiredAngleRoll= 0.04*(ReceiveRollInput() - 127);
-DesiredAnglePitch= 0.04*(ReceivePitchInput() - 127);
+DesiredAngleRoll= 0.03*(ReceiveRollInput() - 127);
+DesiredAnglePitch= 0.03*(ReceivePitchInput() - 127);
 // DesiredAnglePitch = 0;
-DesiredRateYaw=0.15*(ReceiveYawInput());
+DesiredRateYaw=0.1*(ReceiveYawInput());
 InputThrottle=ReceiveThrottleInput();
 ErrorAngleRoll=DesiredAngleRoll-KalmanAngleRoll; // co gia tri
 ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
