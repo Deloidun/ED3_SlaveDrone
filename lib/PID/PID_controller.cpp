@@ -1,9 +1,5 @@
-#include <Wire.h>
-#include <Arduino.h>
-#include <Adafruit_MPU6050.h>  
-#include <ESP32Servo.h>
+#include <PID_controller.h>
 #include <Slave_esp_wifi.h>
-
 
 
 float RateRoll, RatePitch, RateYaw;
@@ -83,7 +79,6 @@ Servo ESC1, ESC2, ESC3, ESC4;
 void system_setup(){
 Wire.setClock(400000);
 Wire.begin();
-// delay(250);
 Wire.beginTransmission(0x68); //address of MPU6050
 Wire.write(0x6B);
 Wire.write(0x00);
@@ -135,8 +130,6 @@ int16_t GyroX=Wire.read()<<8 | Wire.read();
 int16_t GyroY=Wire.read()<<8 | Wire.read();
 int16_t GyroZ=Wire.read()<<8 | Wire.read();
 
-// RateRoll=(float)GyroX/65.5;
-// RatePitch=(float)GyroY/65.5;
 RateRoll=(float)GyroY/65.5;
 RatePitch=(float)-GyroX/65.5;
 RateYaw=(float)GyroZ/65.5;
@@ -144,11 +137,12 @@ AccX=(float)AccXLSB/4096;
 AccY=(float)AccYLSB/4096;
 AccZ=(float)AccZLSB/4096;
 
-// AngleRoll=atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180);
-// AnglePitch=-atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180);
+
 AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 0.4 + 0.95 -0.46 -1.5; // -2.6
 AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 1.8 - 0.45 + 0.255; // +0.9
 }
+
+
 void calibration_measurement()
 {
 for (RateCalibrationNumber=0; RateCalibrationNumber<2000; RateCalibrationNumber ++) {
@@ -274,7 +268,7 @@ return MatchingYawInput;
 
 //PID equation for position (angle) and velocity (rate)
 // void pid_equationR(float Error, float P , float I, float D, float PrevError, float PrevIterm, char PIDmode)
-void pid_equation(float Error, float Rate, float Angle, float P , float I, float D, float PrevError, float PrevIterm, float PrevRate, float PrevPterm, char PIDmode, char PIDdir)
+void pid_equation(float Error, float P , float I, float D, float PrevError, float PrevIterm, char PIDmode, char PIDdir)
 {
 float Pterm; //P controller
 Pterm = P*Error;
@@ -282,27 +276,27 @@ float Iterm; //I controller
 
 if (PIDmode == 'R'){               // PID mode for Rate
     PIDlimit = 180;
-    // Pterm = P*Error;
     if (PIDdir == 'Y') {    // PID limit for Yaw direction
-        Iterm = PrevIterm - I*(Rate+PrevRate)*0.004/2; //I controller
+        Iterm = PrevIterm + I*(Error + PrevError)*0.004/2; //I controller
         PIDlimit = 36;
         PIDReturn[2]=Iterm;
     }
     //Set the limit for I integral controller
     if (Iterm > PIDlimit) Iterm = PIDlimit;
     else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
-} else if (PIDmode == 'A'){        // PID mode for Angle
+    }
+
+else if (PIDmode == 'A'){        // PID mode for Angle
     PIDlimit = 180;
-    
-    Iterm = Iterm + I*Error;
+    Iterm = PrevIterm + I*Error;
     if (Iterm > PIDlimit) Iterm = PIDlimit;
     else if (Iterm < -PIDlimit) Iterm = -PIDlimit;
     PIDReturn[2]=Iterm;
 }
 
 // float Dterm=D*(Error-PrevError)/0.004; //D controller
-float Dterm=D*(Error-PrevError); //D controller
-float PIDOutput= Pterm+Iterm+Dterm; //PID output is the sum of controllers
+float Dterm = D * (Error-PrevError); //D controller
+float PIDOutput = Pterm + Iterm + Dterm; //PID output is the sum of controllers
 
 //Set the limit for the PID output
 if (PIDOutput > PIDlimit) PIDOutput = PIDlimit; // in motor value
@@ -311,7 +305,6 @@ else if (PIDOutput < -PIDlimit) PIDOutput = -PIDlimit;
 
 PIDReturn[0]=PIDOutput;
 PIDReturn[1]=Error;
-PIDReturn[3]=Rate;
 }
 
 void reset_pid(void){
@@ -364,21 +357,17 @@ ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
 }
 
 void pid_equation_angleroll(){
-pid_equation(ErrorAngleRoll,RateRoll,KalmanAngleRoll, PAngleRoll, IAngleRoll, DAngleRoll, PrevErrorAngleRoll,PrevItermAngleRoll,PrevRateRoll,PrevPtermRoll,'A','R');     
+pid_equation(ErrorAngleRoll, PAngleRoll, IAngleRoll, DAngleRoll, PrevErrorAngleRoll,PrevItermAngleRoll,'A','R');     
 DesiredRateRoll=PIDReturn[0]; 
 PrevErrorAngleRoll=PIDReturn[1];
 PrevItermAngleRoll=PIDReturn[2];
-PrevRateRoll = PIDReturn[3];
-PrevPtermRoll = PIDReturn[4];
 }
 
 void pid_equation_anglepitch(){
-pid_equation(ErrorAnglePitch,RatePitch,KalmanAnglePitch, PAnglePitch, IAnglePitch, DAnglePitch, PrevErrorAnglePitch,PrevItermAnglePitch,PrevRatePitch,PrevPtermPitch,'A','P');
+pid_equation(ErrorAnglePitch, PAnglePitch, IAnglePitch, DAnglePitch, PrevErrorAnglePitch,PrevItermAnglePitch,'A','P');
 DesiredRatePitch=PIDReturn[0]; 
 PrevErrorAnglePitch=PIDReturn[1];
 PrevItermAnglePitch=PIDReturn[2];
-PrevRatePitch = PIDReturn[3];
-PrevPtermPitch = PIDReturn[4];
 
 ErrorRateRoll=DesiredRateRoll-RateRoll;
 ErrorRatePitch=DesiredRatePitch-RatePitch;
@@ -386,29 +375,22 @@ ErrorRateYaw=DesiredRateYaw-RateYaw;
 }
 
 void pid_equation_rateroll(){
-pid_equation(ErrorRateRoll, RateRoll, KalmanAngleRoll, PRateRoll, IRateRoll, DRateRoll, PrevErrorRateRoll, PrevItermRateRoll, PrevRateRoll,0,'R','R');
+pid_equation(ErrorRateRoll, PRateRoll, IRateRoll, DRateRoll, PrevErrorRateRoll, PrevItermRateRoll,'R','R');
 InputRoll=PIDReturn[0];
 PrevErrorRateRoll=PIDReturn[1]; 
-// PrevItermRateRoll=PIDReturn[2];
-// PrevRateRoll = PIDReturn[3];
-// Serial.printf("\n%6.4f",InputRoll);
-
 }
 
 void pid_equation_ratepitch(){
-pid_equation(ErrorRatePitch, RatePitch, KalmanAnglePitch, PRatePitch, IRatePitch, DRatePitch, PrevErrorRatePitch, PrevItermRatePitch, PrevRatePitch,0,'R','P');
+pid_equation(ErrorRatePitch, PRatePitch, IRatePitch, DRatePitch, PrevErrorRatePitch, PrevItermRatePitch,'R','P');
 InputPitch=PIDReturn[0]; 
 PrevErrorRatePitch=PIDReturn[1]; 
-// PrevItermRatePitch=PIDReturn[2];
-// PrevRatePitch = PIDReturn[3];
 }
 
 void pid_equation_rateyaw(){
-pid_equation(ErrorRateYaw, RateYaw, 0, PRateYaw,IRateYaw, DRateYaw, PrevErrorRateYaw,PrevItermRateYaw, PrevRateYaw,0,'R','Y');
+pid_equation(ErrorRateYaw, PRateYaw,IRateYaw, DRateYaw, PrevErrorRateYaw, PrevItermRateYaw,'R','Y');
 InputYaw=PIDReturn[0]; 
 PrevErrorRateYaw=PIDReturn[1]; 
 PrevItermRateYaw=PIDReturn[2];
-PrevRateYaw = PIDReturn[3];
 }
 
 void control_throttle(){

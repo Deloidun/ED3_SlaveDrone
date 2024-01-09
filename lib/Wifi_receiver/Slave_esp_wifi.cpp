@@ -1,7 +1,4 @@
-#include <esp_now.h>
-#include <WiFi.h>
-#include <esp_wifi.h>
-#include <Voltage.h>
+#include <Slave_esp_wifi.h>
 #include <PID_controller.h>
 
 float Timer = 0;
@@ -145,20 +142,14 @@ void sendingData()
 
 }
 
-void Print_PS4_Value (){
+void Print_PID_Value (){
   Serial.print(" [");
   Serial.printf("%.4f", PRate);
-  Serial.print ("] ");
-  Serial.print("[");
+  Serial.print (" ");
+  Serial.print("");
   Serial.printf("%.4f", IRate);
   Serial.print ("  ");
   Serial.printf("%.4f", DRate);
   Serial.print("] \n");
-
-  // Serial.print("[");
-  // Serial.print(leftB);
-  // Serial.print ("  ");
-  // Serial.print(rightB);
-  // Serial.print ("]\n");
 }
 

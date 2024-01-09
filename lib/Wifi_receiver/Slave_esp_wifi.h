@@ -1,3 +1,13 @@
+#include <esp_now.h>
+#include <WiFi.h>
+#include <esp_wifi.h>
+#include <Voltage.h>
+#include <Wire.h>
+
+#include <Arduino.h>
+#include <Adafruit_MPU6050.h>  
+#include <ESP32Servo.h>
+
 #pragma once
 
 extern int PWM;
@@ -18,5 +28,5 @@ extern float DAngle;
 
 void init_ESPNOW_Slave();
 void sendingData();
-void Print_PS4_Value ();
+void Print_PID_Value ();
 void TimeCount();

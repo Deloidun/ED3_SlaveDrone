@@ -1,3 +1,8 @@
+#include <Wire.h>
+#include <Arduino.h>
+#include <Adafruit_MPU6050.h>  
+#include <ESP32Servo.h>
+
 #pragma once
 
 extern float PID_output_roll;
@@ -36,8 +41,8 @@ void pid_equation_anglepitch();
 void pid_equation_rateroll();
 void pid_equation_ratepitch();
 void pid_equation_rateyaw();
-void control_throttle();
-void SerialDataPrint();
 void calibrate();
 void checkInputController();
 void gyro_compensate();
+void SerialDataPrint();
+void control_throttle();
