@@ -7,15 +7,15 @@
 #include <PID_controller.h>
 #include <Slave_esp_wifi.h>
 #include <Voltage.h>
+#include <gps_init.h>
 
 
-Adafruit_MPU6050 mpu;
+// Adafruit_MPU6050 mpu;
 uint32_t LoopTimer;
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial);
-
+  // while (!Serial);
   // Set up EPS-NOW for slave ESP3
   init_ESPNOW_Slave();
   init_ESC();
@@ -23,10 +23,12 @@ void setup()
   calibration_measurement(); //MPU6050
   gyro_compensate();
   LoopTimer = micros();
+  gps_setup();
 }
 
 void loop()
 {
+  displayLocation();
   trans();
   TimeCount();
   voltage_sensor();
@@ -43,7 +45,7 @@ void loop()
 
   control_throttle();
   sendingData(); //Send sensor data
-  Print_PID_Value (); //Print PID
+  // Print_PID_Value (); //Print PID
 
   // SerialDataPrint();
   while(micros() - LoopTimer < 4000);
