@@ -47,14 +47,15 @@ float DRateRoll; float DRatePitch=DRateRoll; float DRateYaw = 0.0;
 float PAngleRoll; float PAnglePitch = PAngleRoll;
 float IAngleRoll; float IAnglePitch = IAngleRoll;
 float DAngleRoll; float DAnglePitch = DAngleRoll;
+float MotorInput3Compen;
 
 void trans()
 {
     PRateRoll = PRate;
-    IRateRoll = IRate;
+    MotorInput3Compen = IRate; //Live tuning this motor because it looks weak
     DRateRoll = DRate;
     PRatePitch = PRate;
-    IRatePitch = IRate;
+    // IRatePitch = IRate;
     DRatePitch = DRate;
 
     IAngleRoll = IAngle;
@@ -138,8 +139,8 @@ AccY=(float)AccYLSB/4096;
 AccZ=(float)AccZLSB/4096;
 
 
-AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 0.4 + 0.95 -0.46 -1.5; // -2.6
-AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 1.8 - 0.45 + 0.255; // +0.9
+AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 1.41;
+AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 0.305;
 }
 
 
@@ -356,6 +357,7 @@ ErrorAngleRoll=DesiredAngleRoll-KalmanAngleRoll; // co gia tri
 ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
 }
 
+
 void pid_equation_angleroll(){
 pid_equation(ErrorAngleRoll, PAngleRoll, IAngleRoll, DAngleRoll, PrevErrorAngleRoll,PrevItermAngleRoll,'A','R');     
 DesiredRateRoll=PIDReturn[0]; 
@@ -405,7 +407,7 @@ if (InputThrottle > InputPower) InputThrottle = InputPower;
 // MotorInput4 = (InputThrottle - InputPitch - InputRoll + InputYaw);
 MotorInput1 = (InputThrottle - InputPitch - InputRoll - InputYaw); // doi roll giong thay
 MotorInput2 = (InputThrottle + InputPitch - InputRoll + InputYaw);
-MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw);
+MotorInput3 = (InputThrottle + InputPitch + InputRoll - InputYaw + MotorInput3Compen); // plus MT3Compen because it perform a bit weak
 MotorInput4 = (InputThrottle - InputPitch + InputRoll + InputYaw);
 
 int InputThrottleConstant = 180;
