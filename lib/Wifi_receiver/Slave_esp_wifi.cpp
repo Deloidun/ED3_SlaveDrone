@@ -90,7 +90,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
 void init_ESPNOW_Slave()
 {
   // Set Slave ESP32 as a Wi-Fi Station
-  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_AP_STA);
  
   esp_wifi_set_ps(WIFI_PS_NONE);
 

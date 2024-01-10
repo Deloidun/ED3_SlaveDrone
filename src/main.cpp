@@ -7,7 +7,6 @@
 #include <PID_controller.h>
 #include <Slave_esp_wifi.h>
 #include <Voltage.h>
-#include <gps_init.h>
 
 
 // Adafruit_MPU6050 mpu;
@@ -23,12 +22,12 @@ void setup()
   calibration_measurement(); //MPU6050
   gyro_compensate();
   LoopTimer = micros();
-  gps_setup();
+  // gps_setup();
 }
 
 void loop()
 {
-  displayLocation();
+  // displayLocation();
   trans();
   TimeCount();
   voltage_sensor();
@@ -47,7 +46,7 @@ void loop()
   sendingData(); //Send sensor data
   // Print_PID_Value (); //Print PID
 
-  // SerialDataPrint();
+  SerialDataPrint();
   while(micros() - LoopTimer < 4000);
   LoopTimer = micros();
 }

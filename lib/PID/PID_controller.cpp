@@ -250,14 +250,13 @@ float ReceiveYawInput(){
 int MatchingYawInput = 0;
 
 if (leftB) {
-    MatchingYawInput = 0;
-    //MatchingYawInput = -30;
+    MatchingYawInput = -30;
 }else {
     MatchingYawInput = 0;
 }
 
 if (rightB) {
-    MatchingYawInput = 0;//MatchingYawInput = 30;
+    MatchingYawInput = 30;
 }else {
     MatchingYawInput = 0;
 }
@@ -440,9 +439,9 @@ ESC4.write(MotorInput4);
 }
 
 void SerialDataPrint() {
-// Serial.printf("%3.0f, %3.0f, %3.0f, %3.0f, %6.3f, %6.3f\n", MotorInput1,MotorInput2,MotorInput3,MotorInput4,DesiredRatePitch,DesiredRateRoll);
+Serial.printf("%3.0f, %3.0f, %3.0f, %3.0f, %6.3f, %6.3f\n", MotorInput1,MotorInput2,MotorInput3,MotorInput4);
 // Serial.printf("%8.5f, %8.5f, %8.5f\n", InputPitch, CompePitch,KalmanAnglePitch);
-Serial.println(String(KalmanAnglePitch) + " " + String(KalmanAngleRoll) + " " + String(InputPitch));
+// Serial.println(String(KalmanAnglePitch) + " " + String(KalmanAngleRoll) + " " + String(InputPitch));
 }
 
 
