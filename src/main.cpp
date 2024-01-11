@@ -44,11 +44,14 @@ void loop()
 
   control_throttle();
   sendingData(); //Send sensor data
-  // Print_PID_Value (); //Print PID
+
 
   SerialDataPrint();
+
   while(micros() - LoopTimer < 4000);
   LoopTimer = micros();
+
+  MotorInputPrint()`
 }
 
 

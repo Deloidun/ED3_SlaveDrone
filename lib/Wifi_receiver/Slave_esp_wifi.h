@@ -28,5 +28,11 @@ extern float DAngle;
 
 void init_ESPNOW_Slave();
 void sendingData();
-void Print_PID_Value ();
 void TimeCount();
+
+
+/////////////////////////////////
+void Print_PID_Value ();
+void Print_PS5_Value();
+void MATLAB_Print();
+void MotorInputPrint();

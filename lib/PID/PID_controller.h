@@ -44,5 +44,5 @@ void pid_equation_rateyaw();
 void calibrate();
 void checkInputController();
 void gyro_compensate();
-void SerialDataPrint();
+void MotorInputPrint();
 void control_throttle();
