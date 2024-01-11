@@ -46,8 +46,6 @@ void loop()
   sendingData(); //Send sensor data
 
 
-  SerialDataPrint();
-
   while(micros() - LoopTimer < 4000);
   LoopTimer = micros();
 

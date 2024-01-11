@@ -38,8 +38,8 @@ typedef struct {
   int P;
   byte XJS;
   byte YJS;
-  byte LB;
   byte RB;
+  byte LB;
 
   float PR;
   float IR;
@@ -75,8 +75,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len)
   PWM = controllerData.P;
   X_value = controllerData.XJS;
   Y_value = controllerData.YJS;
-  leftB = controllerData.LB;
   rightB = controllerData.RB;
+  leftB = controllerData.LB;
 
   PRate = controllerData.PR;
   IRate = controllerData.IR;

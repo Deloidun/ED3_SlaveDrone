@@ -139,8 +139,8 @@ AccY=(float)AccYLSB/4096;
 AccZ=(float)AccZLSB/4096;
 
 
-AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 1.41;
-AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 0.305;
+AnglePitch = -atan(AccY/sqrt(AccX*AccX+AccZ*AccZ))*1/(3.142/180) - 0.71;
+AngleRoll = -atan(AccX/sqrt(AccY*AccY+AccZ*AccZ))*1/(3.142/180) + 2.605;
 }
 
 
@@ -247,21 +247,19 @@ MatchingRollInput = X_value;
 return MatchingRollInput;
 }
 float ReceiveYawInput(){
-int MatchingYawInput = 0;
+    int MatchingYawInput = 0;
 
-if (leftB) {
-    MatchingYawInput = -30;
-}else {
-    MatchingYawInput = 0;
-}
+    if (leftB == 1) {
+        MatchingYawInput = 30;
+   
+    }
+     else if (rightB == 1) {
+        MatchingYawInput = -30;
+    } else {
+        MatchingYawInput = 0;
+    }
 
-if (rightB) {
-    MatchingYawInput = 30;
-}else {
-    MatchingYawInput = 0;
-}
-
-return MatchingYawInput;
+    return MatchingYawInput;
 }
 
 
@@ -350,7 +348,7 @@ void value_update(){
 DesiredAngleRoll= 0.03*(ReceiveRollInput() - 127);
 DesiredAnglePitch= 0.03*(ReceivePitchInput() - 127);
 // DesiredAnglePitch = 0;
-DesiredRateYaw=0.1*(ReceiveYawInput());
+DesiredRateYaw=0.2*(ReceiveYawInput());
 InputThrottle=ReceiveThrottleInput();
 ErrorAngleRoll=DesiredAngleRoll-KalmanAngleRoll; // co gia tri
 ErrorAnglePitch=DesiredAnglePitch-KalmanAnglePitch;// co gia tri
@@ -439,7 +437,7 @@ ESC4.write(MotorInput4);
 }
 
 void MotorInputPrint() {
-Serial.printf("%3.0f, %3.0f, %3.0f, %3.0f, %6.3f, %6.3f\n", MotorInput1, MotorInput2, MotorInput3, MotorInput4);
+Serial.printf("Motor 1: %3.0f, Motor 2: %3.0f, Motor 3: %3.0f, Motor 4: %3.0f\n", MotorInput1, MotorInput2, MotorInput3, MotorInput4);
 }
 
 
