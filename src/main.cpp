@@ -51,7 +51,7 @@ void loop()
   while(micros() - LoopTimer < 4000);
   LoopTimer = micros();
 
-  MotorInputPrint()`
+  MotorInputPrint();
 }
 
 
